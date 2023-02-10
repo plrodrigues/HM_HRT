@@ -14,6 +14,11 @@ numpy = "^1.22.3"
 black = "22.3.0"
 flake8 = "4.0.1"
 isort = "^5.10.1"
+ipykernel = "*"
+jupyter = "*"
+ipympl = "*"
+jupyter_black = "*"
+pandas = "*"
 
 [tool.poetry.dev-dependencies]
 
