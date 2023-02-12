@@ -1,5 +1,6 @@
-import pandas as pd
 from enum import Enum
+
+import pandas as pd
 
 
 class LineInfo(Enum):
@@ -33,7 +34,7 @@ def populate_df_with_ints(df: pd.DataFrame, space_separated_values: str):
     df.loc[len(df)] = new_row
 
 
-def read_file(filename: str)-> Instance:
+def read_file(filename: str) -> Instance:
     with open(filename) as f:
         lines = f.readlines()
 
