@@ -61,12 +61,11 @@ def read_file(filename: str) -> Instance:
     df_resource_job_time = pd.DataFrame(columns=["Resource", "Job", "Time"])
 
     df_resource_resource_job_time = pd.DataFrame(
-        columns=["Resource", "Resource", "Job", "Time"]
+        columns=["ResourceA", "ResourceB", "Job", "Time"]
     )
 
     line_info = LineInfo.START
     for line in lines[3:]:
-
         stripped_line = line.strip()
         if stripped_line in [
             "",
