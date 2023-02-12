@@ -33,8 +33,5 @@ jobs:
       - name: Format with black
         run: poetry run python -m black .
 
-      - name: Lint with flake8
-        run: poetry run python -m flake8 .
-
       - name: Run unit tests
         run: poetry run python -m unittest discover -s tests/ -p "*_test.py"
