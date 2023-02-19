@@ -1,7 +1,7 @@
 import pandas as pd
 
 from src.data_connectors.read_input_files import Instance
-from src.ga.chromosome import Chromosome
+from src.genetic_algorithm.chromosome import Chromosome
 
 
 def is_chromosome_precedence_feasible(

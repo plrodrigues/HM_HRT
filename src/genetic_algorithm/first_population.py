@@ -5,7 +5,7 @@ random.seed(123)
 import numpy as np
 
 from src.data_connectors.read_input_files import Instance
-from src.ga.chromosome import Chromosome
+from src.genetic_algorithm.chromosome import Chromosome
 
 
 def get_possible_single_modes(
