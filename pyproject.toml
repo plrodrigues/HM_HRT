@@ -23,7 +23,7 @@ pandas = "*"
 [tool.poetry.dev-dependencies]
 
 [tool.black]
-line-length = 80
+line-length = 120
 target_version = ["py310"]
 
 [tool.isort]

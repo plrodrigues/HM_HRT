@@ -1,7 +1,5 @@
 import itertools
 
-import pandas as pd
-
 from src.data_connectors.read_input_files import Instance
 from src.genetic_algorithm.chromosome import Chromosome
 
