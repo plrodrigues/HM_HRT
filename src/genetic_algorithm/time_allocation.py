@@ -19,11 +19,14 @@ def get_possible_modes(instance: Instance) -> list[str]:
 
 def get_time_from_single_resource(instance: Instance, mode: str, task: int) -> int:
     return instance.df_resource_job_time[
-        (instance.df_resource_job_time.Resource == int(mode)) & (instance.df_resource_job_time.Job == task)
+        (instance.df_resource_job_time.Resource == int(mode))
+        & (instance.df_resource_job_time.Job == task)
     ].Time.item()
 
 
-def get_time_from_collaboratory_resources(instance: Instance, mode1: int, mode2: int, task: int) -> int | None:
+def get_time_from_collaboratory_resources(
+    instance: Instance, mode1: int, mode2: int, task: int
+) -> int | None:
     time_of_task_in_mode = instance.df_resource_resource_job_time[
         (instance.df_resource_resource_job_time.ResourceA == mode1)
         & (instance.df_resource_resource_job_time.ResourceB == mode2)
@@ -52,7 +55,11 @@ def find_the_next_time_slot_of_mode(allocated_modes: dict, mode: str) -> int:
         resources.append(int(val_1))
         resources.append(int(val_2))
 
-    possible_modes = [mode for mode in allocated_modes.keys() if any(str(resource) in mode for resource in resources)]
+    possible_modes = [
+        mode
+        for mode in allocated_modes.keys()
+        if any(str(resource) in mode for resource in resources)
+    ]
 
     for mode in possible_modes:
         for k in allocated_modes[mode].keys():
@@ -93,7 +100,9 @@ def get_all_time_allocations(instance: Instance, chromosome: Chromosome) -> dict
             predecessors_allocated_at = 0
             if len(predecessors) > 0:
                 for pred in predecessors:
-                    previous_predecessor_end_time = find_end_time_of_task_in_allocated_modes(times_allocated, pred)
+                    previous_predecessor_end_time = find_end_time_of_task_in_allocated_modes(
+                        times_allocated, pred
+                    )
                     if previous_predecessor_end_time:
                         if previous_predecessor_end_time > predecessors_allocated_at:
                             predecessors_allocated_at = previous_predecessor_end_time

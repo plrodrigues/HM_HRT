@@ -32,17 +32,27 @@ def is_one_resource_in_mode(mode: str) -> bool:
 
 
 def is_one_resource_task_possible(df_resource_job_time: pd.DataFrame, mode: int, task: int) -> bool:
-    if len(df_resource_job_time[(df_resource_job_time.Resource == mode) & (df_resource_job_time.Job == task)]) >= 1:
+    if (
+        len(
+            df_resource_job_time[
+                (df_resource_job_time.Resource == mode) & (df_resource_job_time.Job == task)
+            ]
+        )
+        >= 1
+    ):
         return True
     else:
         return False
 
 
-def is_collaborative_resource_task_possible(df_resource_resource_job_time: pd.DataFrame, mode: str, task: int) -> bool:
+def is_collaborative_resource_task_possible(
+    df_resource_resource_job_time: pd.DataFrame, mode: str, task: int
+) -> bool:
     if (
         len(
             df_resource_resource_job_time[
-                (df_resource_resource_job_time.Resources == mode) & (df_resource_resource_job_time.Job == task)
+                (df_resource_resource_job_time.Resources == mode)
+                & (df_resource_resource_job_time.Job == task)
             ]
         )
         >= 1
