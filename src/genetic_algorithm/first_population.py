@@ -35,20 +35,14 @@ def get_possible_collaborative_modes(
     if not working_space:
         working_space = instance.df_workingspace_id.WorkingSpace.min()
 
-    df_collaborations = instance.df_resource_resource_job_time[
-        instance.df_resource_resource_job_time.Job.isin(
+    df_collaborations = instance.df_resource_resource_collaboration()
+    collaborative_modes = df_collaborations[
+        df_collaborations.Job.isin(
             instance.df_workingspace_id[
                 instance.df_workingspace_id.WorkingSpace == working_space
             ].Id.unique()
         )
-    ][["ResourceA", "ResourceB"]]
-
-    df_collaborations["Resources"] = (
-        df_collaborations["ResourceA"].astype(str)
-        + "-"
-        + df_collaborations["ResourceB"].astype(str)
-    )
-    collaborative_modes = df_collaborations["Resources"].unique()
+    ]["Resources"].unique()
     return collaborative_modes
 
 
@@ -99,7 +93,7 @@ def get_permutations_for_order_of_tasks(
     number_of_tasks: int,
 ) -> list[list[int]]:
     base_order = [x for x in range(number_of_tasks)]
-    n_elements_to_permute = 4
+    n_elements_to_permute = 5
     orders_sections = [
         base_order[i : i + n_elements_to_permute]
         for i in range(0, len(base_order), n_elements_to_permute)
@@ -130,7 +124,7 @@ def get_first_population(
             chromosomes.append(chromosome_x)
 
     # Second selection of chromosomes: generate permutations of modes and perform permutations on the order of tasks
-    n_second_chromosomes = 20
+    n_second_chromosomes = 50
     for _ in range(n_second_chromosomes):
         for n_order in order_permutations:
             chromosome_x = Chromosome(

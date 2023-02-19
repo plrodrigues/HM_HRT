@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 
 import pandas as pd
@@ -13,15 +14,23 @@ class LineInfo(Enum):
     READ_RESOURCE_RESOURCE_JOB_TIME = 6
 
 
+@dataclass(slots=True)
 class Instance:
-    def __init__(self) -> None:
-        self.df_setup = pd.DataFrame()
-        self.df_resources = pd.DataFrame()
-        self.df_workingspace_resources = pd.DataFrame()
-        self.df_workingspace_id = pd.DataFrame()
-        self.df_predecessor_sucessor = pd.DataFrame()
-        self.df_resource_job_time = pd.DataFrame()
-        self.df_resource_resource_job_time = pd.DataFrame()
+    df_setup: pd.DataFrame
+    df_resources: pd.DataFrame
+    df_workingspace_resources: pd.DataFrame
+    df_workingspace_id: pd.DataFrame
+    df_predecessor_sucessor: pd.DataFrame
+    df_resource_job_time: pd.DataFrame
+    df_resource_resource_job_time: pd.DataFrame = pd.DataFrame()
+
+    def df_resource_resource_collaboration(self) -> pd.DataFrame:
+        self.df_resource_resource_job_time["Resources"] = (
+            self.df_resource_resource_job_time["ResourceA"].astype(str)
+            + "-"
+            + self.df_resource_resource_job_time["ResourceB"].astype(str)
+        )
+        return self.df_resource_resource_job_time
 
 
 def populate_df_with_str_int(df: pd.DataFrame, space_separated_values: str):
@@ -120,13 +129,14 @@ def read_file(filename: str) -> Instance:
         if line_info == line_info.READ_RESOURCE_RESOURCE_JOB_TIME:
             populate_df_with_ints(df_resource_resource_job_time, stripped_line)
 
-    instance = Instance()
-    instance.df_setup = df_setup
-    instance.df_resources = df_resources
-    instance.df_workingspace_resources = df_workingspace_resources
-    instance.df_workingspace_id = df_workingspace_id
-    instance.df_predecessor_sucessor = df_predecessor_sucessor
-    instance.df_resource_job_time = df_resource_job_time
-    instance.df_resource_resource_job_time = df_resource_resource_job_time
+    instance = Instance(
+        df_setup=df_setup,
+        df_resources=df_resources,
+        df_workingspace_resources=df_workingspace_resources,
+        df_workingspace_id=df_workingspace_id,
+        df_predecessor_sucessor=df_predecessor_sucessor,
+        df_resource_job_time=df_resource_job_time,
+        df_resource_resource_job_time=df_resource_resource_job_time,
+    )
 
     return instance
