@@ -60,18 +60,14 @@ def read_file(filename: str) -> Instance:
     )
 
     df_resources = pd.DataFrame(columns=["Type", "Id"])
-    df_workingspace_resources = pd.DataFrame(
-        columns=["WorkingSpace", "Resource"]
-    )
+    df_workingspace_resources = pd.DataFrame(columns=["WorkingSpace", "Resource"])
     df_workingspace_id = pd.DataFrame(columns=["WorkingSpace", "Id"])
 
     df_predecessor_sucessor = pd.DataFrame(columns=["Predecessor", "Sucessor"])
 
     df_resource_job_time = pd.DataFrame(columns=["Resource", "Job", "Time"])
 
-    df_resource_resource_job_time = pd.DataFrame(
-        columns=["ResourceA", "ResourceB", "Job", "Time"]
-    )
+    df_resource_resource_job_time = pd.DataFrame(columns=["ResourceA", "ResourceB", "Job", "Time"])
 
     line_info = LineInfo.START
     for line in lines[3:]:

@@ -33,9 +33,7 @@ def generate_modes_of_working_space(
     ws_resources = instance.df_workingspace_resources[
         instance.df_workingspace_resources.WorkingSpace == working_space
     ].Resource.unique()
-    resources_exclusively_in_new_ws = [
-        m for m in ws_resources if m not in initial_ws_resources
-    ]
+    resources_exclusively_in_new_ws = [m for m in ws_resources if m not in initial_ws_resources]
 
     new_ws_mode = []
     for m in modes:
@@ -52,38 +50,28 @@ def generate_modes_of_working_space(
                 new_ws_mode.append(m)
             elif (m1 in ws_resources) and (m2 not in ws_resources):
                 if len(resources_exclusively_in_new_ws) == 1:
-                    updated_m = (
-                        str(m1) + "-" + str(resources_exclusively_in_new_ws[0])
-                    )
+                    updated_m = str(m1) + "-" + str(resources_exclusively_in_new_ws[0])
                     new_ws_mode.append(updated_m)
             elif (m2 in ws_resources) and (m1 not in ws_resources):
                 if len(resources_exclusively_in_new_ws) == 1:
-                    updated_m = (
-                        str(resources_exclusively_in_new_ws[0]) + "-" + str(m2)
-                    )
+                    updated_m = str(resources_exclusively_in_new_ws[0]) + "-" + str(m2)
                     new_ws_mode.append(updated_m)
     return new_ws_mode
 
 
-def generate_new_mode_with_replication(
-    instance: Instance, chromosome: Chromosome
-) -> list[str]:
+def generate_new_mode_with_replication(instance: Instance, chromosome: Chromosome) -> list[str]:
     # Generate modes for remaining working spaces
     all_new_modes = []
     for ws in instance.df_workingspace_resources.WorkingSpace.unique():
         if ws == 1:
             all_new_modes.append(chromosome.mode)
         else:
-            mode_for_ws = generate_modes_of_working_space(
-                instance, 1, ws, chromosome.mode
-            )
+            mode_for_ws = generate_modes_of_working_space(instance, 1, ws, chromosome.mode)
             all_new_modes.append(mode_for_ws)
     return flatten(all_new_modes)
 
 
-def generate_new_orders_with_replication(
-    instance: Instance, chromosome: Chromosome
-) -> list[int]:
+def generate_new_orders_with_replication(instance: Instance, chromosome: Chromosome) -> list[int]:
     # Generate orders for remaining working spaces, knowing that they have
     # to follow a replication SAC method
     new_orders = []
@@ -94,9 +82,7 @@ def generate_new_orders_with_replication(
     return flatten(new_orders)
 
 
-def update_chromosome_with_replication(
-    instance: Instance, chromosome: Chromosome
-) -> Chromosome:
+def update_chromosome_with_replication(instance: Instance, chromosome: Chromosome) -> Chromosome:
     return Chromosome(
         mode=generate_new_mode_with_replication(instance, chromosome),
         order=generate_new_orders_with_replication(instance, chromosome),

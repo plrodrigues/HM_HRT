@@ -4,9 +4,7 @@ from src.data_connectors.read_input_files import Instance
 from src.genetic_algorithm.chromosome import Chromosome
 
 
-def is_chromosome_precedence_feasible(
-    instance: Instance, chromosome: Chromosome
-) -> bool:
+def is_chromosome_precedence_feasible(instance: Instance, chromosome: Chromosome) -> bool:
     # Verify that the precedence of tasks is valid with precedence given
 
     tasks = [x for x in range(1, len(chromosome.order) + 1)]
@@ -33,31 +31,18 @@ def is_one_resource_in_mode(mode: str) -> bool:
         return False
 
 
-def is_one_resource_task_possible(
-    df_resource_job_time: pd.DataFrame, mode: int, task: int
-) -> bool:
-    if (
-        len(
-            df_resource_job_time[
-                (df_resource_job_time.Resource == mode)
-                & (df_resource_job_time.Job == task)
-            ]
-        )
-        >= 1
-    ):
+def is_one_resource_task_possible(df_resource_job_time: pd.DataFrame, mode: int, task: int) -> bool:
+    if len(df_resource_job_time[(df_resource_job_time.Resource == mode) & (df_resource_job_time.Job == task)]) >= 1:
         return True
     else:
         return False
 
 
-def is_collaborative_resource_task_possible(
-    df_resource_resource_job_time: pd.DataFrame, mode: str, task: int
-) -> bool:
+def is_collaborative_resource_task_possible(df_resource_resource_job_time: pd.DataFrame, mode: str, task: int) -> bool:
     if (
         len(
             df_resource_resource_job_time[
-                (df_resource_resource_job_time.Resources == mode)
-                & (df_resource_resource_job_time.Job == task)
+                (df_resource_resource_job_time.Resources == mode) & (df_resource_resource_job_time.Job == task)
             ]
         )
         >= 1
@@ -67,9 +52,7 @@ def is_collaborative_resource_task_possible(
         return False
 
 
-def is_chromosome_task_mode_feasible(
-    instance: Instance, chromosome: Chromosome
-) -> bool:
+def is_chromosome_task_mode_feasible(instance: Instance, chromosome: Chromosome) -> bool:
     # Verify that the mode assigned can perform the task allocated
     are_genes_possible = []
     for n in range(len(chromosome.order)):
