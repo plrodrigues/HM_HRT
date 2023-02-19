@@ -79,3 +79,6 @@ The objective is to **minimise the makespan given by C**:
   - (C) and (D) define the domain of the variables. 
 
 - $X_{j_1 m} = X_{j_w m} \ \forall i_1 \in J_1, \forall m \in M_j, \forall w \in \{2, ..., n\} \ \Longrightarrow$ given that $j_1$ belongs to $J_1$, and $j_w$ is the replication of $j_1$ in working space $J_w$.
+
+
+
