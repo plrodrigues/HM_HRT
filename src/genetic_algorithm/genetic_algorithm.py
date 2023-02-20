@@ -108,12 +108,13 @@ def generate_next_population(
     new_generation = next_population.generate_next_population_with_crossover(
         fittest_chromosomes, fittest_makespan
     )
-    print("in generation", new_generation[-10, :])
+    print("in generation", new_generation[-3:])
     new_mutated_population = []
     for chromosome in new_generation:
         new_mutated_population.append(
             next_population.swap_mutation_at_probability(chromosome, probability)
         )
+    print("new mutated: ", new_mutated_population[-3:])
     new_chromosomes = fittest_chromosomes.copy()
     new_chromosomes.extend(new_mutated_population)
     print(len(fittest_chromosomes), len(new_mutated_population), len(new_chromosomes))
@@ -148,8 +149,8 @@ def genetic_algorithm(
         if is_better_than_previous:
             population = generate_next_population(fittest_population, fittest_makespan, probability)
             print(f"Size new population: {len(population)}")
-            print(f"Preview it: {population[:10]}")
-            print(f"Preview it last elements: {population[-10:]}")
+            print(f"Preview it: {population[:3]}")
+            print(f"Preview it last elements: {population[-3:]}")
         end_time = datetime.datetime.now()
         iteration_time = (end_time - start_time).total_seconds()
         probability = max(probability - iteration * decrease_rate, minimum_probability)

@@ -67,7 +67,6 @@ def generate_next_population_with_crossover(
         new_generation.append(offspring_2)
         new_generation.append(offspring_3)
         new_generation.append(offspring_4)
-    print("crossover: ", new_generation[-10:])
 
     return new_generation
 
@@ -86,3 +85,4 @@ def swap_mutation_at_probability(chromosome: Chromosome, probability: float = 0.
     while it < n_times:
         chromosome = swap_mutation(chromosome)
         it += 1
+    return chromosome
