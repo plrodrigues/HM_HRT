@@ -67,6 +67,7 @@ def generate_next_population_with_crossover(
         new_generation.append(offspring_2)
         new_generation.append(offspring_3)
         new_generation.append(offspring_4)
+    print("crossover: ", new_generation[-10:])
 
     return new_generation
 
