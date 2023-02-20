@@ -1,5 +1,6 @@
 import itertools
 import random
+import logging
 
 random.seed(123)
 import numpy as np
@@ -50,7 +51,7 @@ def get_possible_modes(instance: Instance, working_space: int = None) -> list[st
     collaborative_modes = get_possible_collaborative_modes(instance, working_space)
 
     possible_modes = np.append(singular_modes, collaborative_modes)
-    print(f"Possible modes: {possible_modes}")
+    logging.debug(f"Possible modes: {possible_modes}")
     return possible_modes
 
 
@@ -63,7 +64,7 @@ def get_total_number_of_tasks_per_working_space(
     number_of_tasks = len(
         instance.df_workingspace_id[instance.df_workingspace_id.WorkingSpace == working_space]
     )
-    print(f"Number of tasks: {number_of_tasks}")
+    logging.debug(f"Number of tasks: {number_of_tasks}")
     return number_of_tasks
 
 
@@ -110,7 +111,7 @@ def get_first_population(possible_modes: list[str], number_tasks: int) -> list[C
 
     # Second selection of chromosomes: generate permutations of modes and perform permutations
     # on the order of tasks
-    n_second_chromosomes = 50
+    n_second_chromosomes = 100
     for _ in range(n_second_chromosomes):
         for n_order in order_permutations:
             chromosome_x = Chromosome(
@@ -119,5 +120,5 @@ def get_first_population(possible_modes: list[str], number_tasks: int) -> list[C
             )
             chromosomes.append(chromosome_x)
 
-    print(f"Total size of first population: {len(chromosomes)}")
+    logging.debug(f"Total size of first population: {len(chromosomes)}")
     return chromosomes

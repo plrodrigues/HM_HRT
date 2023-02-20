@@ -1,4 +1,5 @@
 import random
+import copy
 
 from src.genetic_algorithm.chromosome import Chromosome
 
@@ -47,13 +48,14 @@ def generate_next_population_with_crossover(
     all_survival_chromosomes: list[Chromosome], makespan_all_survival_chromosomes: list[int]
 ) -> list[Chromosome]:
     new_generation = []
+    all_survival_chromosomes_to_generation = all_survival_chromosomes.copy()
 
     sorted_chromosomes = [
         i for i, _ in sorted(enumerate(makespan_all_survival_chromosomes), key=lambda x: x[1])
     ]
     orded_by_fitness = sorted(
-        all_survival_chromosomes,
-        key=lambda obj: sorted_chromosomes.index(all_survival_chromosomes.index(obj)),
+        all_survival_chromosomes_to_generation,
+        key=lambda obj: sorted_chromosomes.index(all_survival_chromosomes_to_generation.index(obj)),
     )
 
     for i in range(0, len(orded_by_fitness) - 1, 2):
@@ -71,18 +73,28 @@ def generate_next_population_with_crossover(
     return new_generation
 
 
-def swap_mutation(chromosome: Chromosome) -> Chromosome:
+def swap_mutation_in_order(chromosome: Chromosome) -> Chromosome:
     # Choose two random indices to swap
     idx1, idx2 = random.sample(range(len(chromosome.order)), 2)
     # Swap the values at the chosen indices
     chromosome.order[idx1], chromosome.order[idx2] = chromosome.order[idx2], chromosome.order[idx1]
     return chromosome
 
+def swap_mutation_in_mode(chromosome: Chromosome) -> Chromosome:
+    # Choose two random indices to swap
+    idx1, idx2 = random.sample(range(len(chromosome.mode)), 2)
+    # Swap the values at the chosen indices
+    chromosome.mode[idx1], chromosome.mode[idx2] = chromosome.mode[idx2], chromosome.mode[idx1]
+    return chromosome
+
 
 def swap_mutation_at_probability(chromosome: Chromosome, probability: float = 0.5) -> Chromosome:
-    n_times = int(round(len(chromosome.order) * probability, 0))
+    variable_probability = random.uniform(0, probability)
+    n_times = int(round(len(chromosome.order) * variable_probability, 0))
     it = 0
+    #print(f"Mutating {n_times} times.")
     while it < n_times:
-        chromosome = swap_mutation(chromosome)
+        chromosome = swap_mutation_in_order(chromosome)
+        chromosome = swap_mutation_in_mode(chromosome)
         it += 1
     return chromosome

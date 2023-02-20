@@ -81,7 +81,7 @@ def is_chromosome_task_mode_feasible(instance: Instance, chromosome: Chromosome)
             ):
                 is_feasible_one = True
             else:
-                print("1 resource not possible")
+                print(f"1 resource not possible [resource: task]: {int(pair_mode_task[0]),pair_mode_task[1]}")
                 is_feasible_one = False
         else:
             if is_collaborative_resource_task_possible(
@@ -91,7 +91,7 @@ def is_chromosome_task_mode_feasible(instance: Instance, chromosome: Chromosome)
             ):
                 is_feasible_collab = True
             else:
-                print("more resources not possible")
+                print(f"more resources not possible [resource, resource: task]: {pair_mode_task[0], pair_mode_task[1]}")
                 is_feasible_collab = False
         are_genes_possible.append(is_feasible_one or is_feasible_collab)
 
