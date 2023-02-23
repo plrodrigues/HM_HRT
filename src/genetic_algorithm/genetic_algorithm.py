@@ -1,7 +1,9 @@
-import datetime
 import copy
-import numpy as np
+import datetime
 import logging
+import math
+
+import numpy as np
 
 from src.data_connectors.read_input_files import Instance
 from src.genetic_algorithm import (
@@ -23,7 +25,7 @@ def generate_first_population(instance: Instance) -> list[Chromosome]:
     n_tasks = first_population.get_total_number_of_tasks_per_working_space(instance)
 
     # Chromosomes
-    all_chromosomes = first_population.get_first_population(possible_modes, n_tasks)
+    all_chromosomes = first_population.get_first_population(instance, possible_modes, n_tasks)
     return all_chromosomes
 
 
@@ -44,7 +46,9 @@ def keep_feasible_chromosomes(
         if feasibility.is_chromosome_task_mode_feasible(instance, chrom):
             task_mode_feasible_chromosomes.append(chrom)
 
-    logging.debug(f"From {len(precedence_feasible_chromosomes)} to {len(task_mode_feasible_chromosomes)}")
+    logging.debug(
+        f"From {len(precedence_feasible_chromosomes)} to {len(task_mode_feasible_chromosomes)}"
+    )
 
     return task_mode_feasible_chromosomes
 
@@ -54,12 +58,17 @@ def add_replication_of_remaining_working_spaces(
 ) -> list[Chromosome]:
     # for all feasible chromosomes
     replicated_chromosomes = []
+    logging.debug(
+        f"add_replication_of_remaining_working_spaces(): Non replicated chromosomes: {len(all_chromosomes)}"
+    )
     for chromosome in all_chromosomes:
         replicated_chromosomes.append(
             replication.update_chromosome_with_replication(instance, chromosome)
         )
 
-    logging.debug(f"add_replication_of_remaining_working_spaces: {len(replicated_chromosomes)}")
+    logging.debug(
+        f"add_replication_of_remaining_working_spaces(): Replicated chromossomes: {len(replicated_chromosomes)}"
+    )
     return replicated_chromosomes
 
 
@@ -83,15 +92,23 @@ def add_times_and_find_makespan(instance: Instance, all_chromosomes: list[Chromo
 
 
 def keep_fittest_chromosomes(
-    task_mode_feasible_chromosomes: list[Chromosome], makespan_all_chromosomes: list[int], chromosomes_without_replication: list[int]
+    task_mode_feasible_chromosomes: list[Chromosome],
+    makespan_all_chromosomes: list[int],
+    chromosomes_without_replication: list[int],
 ) -> tuple[list[Chromosome], list[int]]:
     keep_fittest_n = 100
     fittest_chromosomes, fittest_makespan = fitness.keep_fittest_n_chromosomes(
         task_mode_feasible_chromosomes, makespan_all_chromosomes, keep_fittest_n
     )
-    logging.debug(f"How many fittest chromosomes: {len(fittest_chromosomes)}")
-    fittest_without_replication_chromosomes, _ = fitness.keep_fittest_n_chromosomes(chromosomes_without_replication, makespan_all_chromosomes, keep_fittest_n)
-    logging.debug(f"How many fittest chromosomes without replication are selected: {len(fittest_without_replication_chromosomes)}")
+    logging.debug(
+        f"keep_fittest_chromosomes(): How many fittest chromosomes: {len(fittest_chromosomes)}"
+    )
+    fittest_without_replication_chromosomes, _ = fitness.keep_fittest_n_chromosomes(
+        chromosomes_without_replication, makespan_all_chromosomes, keep_fittest_n
+    )
+    logging.debug(
+        f"keep_fittest_chromosomes(): How many fittest chromosomes without replication are selected: {len(fittest_without_replication_chromosomes)}"
+    )
     return fittest_chromosomes, fittest_makespan, fittest_without_replication_chromosomes
 
 
@@ -111,7 +128,9 @@ def is_new_population_better_than_previous(
 def generate_next_population(
     fittest_chromosomes: list[Chromosome], fittest_makespan: list[int], probability: float = 0.4
 ) -> list[Chromosome]:
+    logging.debug(f"generate_next_population() - 0 {len(fittest_chromosomes)}")
     new_chromosomes = copy.deepcopy(fittest_chromosomes)
+    logging.debug(f"generate_next_population() - 1 {len(new_chromosomes)}")
     original_fittest_chromosomes = copy.deepcopy(fittest_chromosomes)
     new_generation = next_population.generate_next_population_with_crossover(
         original_fittest_chromosomes, fittest_makespan
@@ -119,54 +138,104 @@ def generate_next_population(
     generation_to_mutate = copy.deepcopy(new_generation)
 
     new_chromosomes.extend(new_generation)
-    
+    logging.debug(f"generate_next_population() - 2 {len(new_chromosomes)}")
     new_mutated_population = []
-    
+
     for chromosome in generation_to_mutate:
-        mutated_chromosome = copy.copy(chromosome)
-        mutated_chromosome = next_population.swap_mutation_at_probability(mutated_chromosome, probability)
+        mutated_chromosome = copy.deepcopy(chromosome)
+        mutated_chromosome = next_population.swap_mutation_at_probability(
+            mutated_chromosome, probability
+        )
         new_mutated_population.append(mutated_chromosome)
     new_chromosomes.extend(new_mutated_population)
-    
+    logging.debug(f"generate_next_population() - 3 {len(new_chromosomes)}")
+
+    new_chromosomes = next_population.remove_duplicated_chromosomes(copy.deepcopy(new_chromosomes))
+    logging.info(f"generate_next_population() - 4 {len(new_chromosomes)}")
+
     return new_chromosomes
+
+
+def sigmoidal_mutation_probability(iteration):
+    initial_probability = 0.7
+    minimum_probability = 0.1
+    k = 0.01  # steepness of the sigmoid
+    x0 = 50  # midpoint of the sigmoid
+    current_probability = max(
+        (initial_probability - minimum_probability) / (1 + math.exp(-k * (iteration - x0)))
+        + minimum_probability,
+        minimum_probability,
+    )
+    return current_probability
+
+
+def exponential_mutation_probability(iteration):
+    initial_probability = 0.9
+    minimum_probability = 0.05
+    decay_factor = 0.95
+    current_probability = max(
+        initial_probability * (decay_factor**iteration), minimum_probability
+    )
+    return current_probability
 
 
 def genetic_algorithm(
     instance: Instance, max_limit_time_sec: int = 60 * 60
-) -> tuple[list[Chromosome], list[int], dict]:
+) -> tuple[list[Chromosome], list[int], int, int]:
     population = generate_first_population(instance)
     logging.info(f"Size first population: {len(population)}")
     previous_population = None
     is_better_than_previous = True
     start_time = datetime.datetime.now()
     iteration_time = 0
-    probability = 0.7
-    minimum_probability = 0.05
-    decrease_rate = 0.01
+    probability = 0.9
     iteration = 0
+    # for latency assessment
+    min_makespan = float("inf")
+    better_times_seconds = max_limit_time_sec
 
     while is_better_than_previous and (iteration_time < max_limit_time_sec):
         feasible_population = keep_feasible_chromosomes(instance, population)
-        if len(feasible_population) < 5: 
-            logging.warning(f'Everything died!')
-            break
+        logging.info(f"Size of feasible population: {len(feasible_population)}")
+        if len(feasible_population) < 2:
+            logging.warning(f"Population size: {len(feasible_population)}! Everything died!")
+            logging.warning(f"Returning results.")
+            return (
+                fittest_population,
+                fittest_makespan,
+                np.min(fittest_makespan),
+                better_times_seconds,
+            )
         replicated_population = add_replication_of_remaining_working_spaces(
             instance, feasible_population
         )
+        logging.info(f"Population replicated: {len(replicated_population)}")
         times_of_populations = add_times_and_find_makespan(instance, replicated_population)
-        fittest_population, fittest_makespan, fittest_chromosomes_without_replication = keep_fittest_chromosomes(
+        (
+            fittest_population,
+            fittest_makespan,
+            fittest_chromosomes_without_replication,
+        ) = keep_fittest_chromosomes(
             replicated_population, times_of_populations, feasible_population
         )
+        logging.info(f"Fittest replicated: {len(fittest_population)}")
         is_better_than_previous = is_new_population_better_than_previous(
             fittest_population, previous_population
         )
         if is_better_than_previous:
-            population = generate_next_population(fittest_chromosomes_without_replication, fittest_makespan, probability)
+            population = generate_next_population(
+                fittest_chromosomes_without_replication, fittest_makespan, probability
+            )
             logging.info(f"Size new population: {len(population)}")
+        if np.min(fittest_makespan) < min_makespan:
+            min_makespan = np.min(fittest_makespan)
+            better_times_seconds = (datetime.datetime.now() - start_time).total_seconds()
         end_time = datetime.datetime.now()
         iteration_time = (end_time - start_time).total_seconds()
-        probability = max(probability - iteration * decrease_rate, minimum_probability)
+        probability = exponential_mutation_probability(iteration)
         iteration += 1
-        logging.info(f'==> Iteration: {iteration} Time: {iteration_time:2f} seconds. Fittest solution: {np.min(times_of_populations)}')
-        logging.info(f'Next iteration will have: probability = {probability}')
-    return fittest_population, fittest_makespan, times_of_populations
+        logging.info(
+            f"==> Iteration: {iteration} Time: {iteration_time:2f} seconds. Fittest solution: {np.min(fittest_makespan)}"
+        )
+        logging.info(f"Next iteration will have: probability = {probability}")
+    return fittest_population, fittest_makespan, np.min(fittest_makespan), better_times_seconds

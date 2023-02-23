@@ -5,17 +5,18 @@ from src.genetic_algorithm.chromosome import Chromosome
 
 def keep_fittest_n_chromosomes(
     all_chromosomes: list[Chromosome], makespan_all_chromosomes: list[int], number_survivers: int
-) -> tuple[list[int], list
-[Chromosome]]:
-    # THIS IS INCORRECTspo
-    better_makespans = sorted(makespan_all_chromosomes)[:number_survivers+1]
+) -> tuple[list[int], list[Chromosome]]:
+    # THIS IS INCORRECT
+    better_makespans = sorted(makespan_all_chromosomes)[: number_survivers + 1]
     max_makespan_limit = np.max(better_makespans)
     fittest_chromosomes = [
-        x for x, flag in zip(all_chromosomes, makespan_all_chromosomes < max_makespan_limit) if flag
+        x
+        for x, flag in zip(all_chromosomes, makespan_all_chromosomes <= max_makespan_limit)
+        if flag
     ]
     fittest_makespans = [
         x
-        for x, flag in zip(makespan_all_chromosomes, makespan_all_chromosomes < max_makespan_limit)
+        for x, flag in zip(makespan_all_chromosomes, makespan_all_chromosomes <= max_makespan_limit)
         if flag
     ]
     return fittest_chromosomes, fittest_makespans

@@ -1,5 +1,5 @@
-import random
 import copy
+import random
 
 from src.genetic_algorithm.chromosome import Chromosome
 
@@ -80,6 +80,7 @@ def swap_mutation_in_order(chromosome: Chromosome) -> Chromosome:
     chromosome.order[idx1], chromosome.order[idx2] = chromosome.order[idx2], chromosome.order[idx1]
     return chromosome
 
+
 def swap_mutation_in_mode(chromosome: Chromosome) -> Chromosome:
     # Choose two random indices to swap
     idx1, idx2 = random.sample(range(len(chromosome.mode)), 2)
@@ -92,9 +93,24 @@ def swap_mutation_at_probability(chromosome: Chromosome, probability: float = 0.
     variable_probability = random.uniform(0, probability)
     n_times = int(round(len(chromosome.order) * variable_probability, 0))
     it = 0
-    #print(f"Mutating {n_times} times.")
+    # print(f"Mutating {n_times} times.")
     while it < n_times:
         chromosome = swap_mutation_in_order(chromosome)
         chromosome = swap_mutation_in_mode(chromosome)
         it += 1
     return chromosome
+
+
+def remove_duplicated_chromosomes(new_chromosomes: list[Chromosome]) -> list[Chromosome]:
+    # go element by element
+    duplicated_chromosome_indexes = []
+    for i in range(len(new_chromosomes) - 1):
+        for j in range(i + 1, len(new_chromosomes)):
+            if new_chromosomes[i].is_equal(new_chromosomes[j]):
+                duplicated_chromosome_indexes.append(j)
+
+    unique_chromosomes = [
+        j for i, j in enumerate(new_chromosomes) if i not in duplicated_chromosome_indexes
+    ]
+
+    return unique_chromosomes

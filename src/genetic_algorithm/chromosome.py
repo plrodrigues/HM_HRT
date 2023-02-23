@@ -18,3 +18,8 @@ class Chromosome:
         )
         df = df.set_index("task_id")
         return df
+
+    def is_equal(self, chromosome_to_compare) -> bool:
+        return (self.mode == chromosome_to_compare.mode) and (
+            self.order == chromosome_to_compare.order
+        )

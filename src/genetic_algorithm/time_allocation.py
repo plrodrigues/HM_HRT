@@ -45,7 +45,7 @@ def find_end_time_of_task_in_allocated_modes(allocated_modes: dict, task: int) -
 
 
 def find_the_next_time_slot_of_mode(allocated_modes: dict, mode: str) -> int:
-    latest_mode = 0
+    latest_mode = -1
     # find all resources
     resources = []
     if feasibility.is_one_resource_in_mode(mode):
@@ -97,7 +97,7 @@ def get_all_time_allocations(instance: Instance, chromosome: Chromosome) -> dict
                 instance.df_predecessor_sucessor.Sucessor == task
             ].Predecessor.unique()
             # Pick end time of predecessors
-            predecessors_allocated_at = 0
+            predecessors_allocated_at = -1
             if len(predecessors) > 0:
                 for pred in predecessors:
                     previous_predecessor_end_time = find_end_time_of_task_in_allocated_modes(

@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 
 from src.data_connectors.read_input_files import Instance
@@ -81,7 +83,9 @@ def is_chromosome_task_mode_feasible(instance: Instance, chromosome: Chromosome)
             ):
                 is_feasible_one = True
             else:
-                print(f"1 resource not possible [resource: task]: {int(pair_mode_task[0]),pair_mode_task[1]}")
+                logging.debug(
+                    f"1 resource not possible [resource: task]: {int(pair_mode_task[0]),pair_mode_task[1]}"
+                )
                 is_feasible_one = False
         else:
             if is_collaborative_resource_task_possible(
@@ -91,8 +95,11 @@ def is_chromosome_task_mode_feasible(instance: Instance, chromosome: Chromosome)
             ):
                 is_feasible_collab = True
             else:
-                print(f"more resources not possible [resource, resource: task]: {pair_mode_task[0], pair_mode_task[1]}")
+                logging.debug(
+                    f"more resources not possible [resource, resource: task]: {pair_mode_task[0], pair_mode_task[1]}"
+                )
                 is_feasible_collab = False
         are_genes_possible.append(is_feasible_one or is_feasible_collab)
+    logging.debug(f"Number of feasible chromosomes: {len(are_genes_possible)}")
 
     return all(are_genes_possible)

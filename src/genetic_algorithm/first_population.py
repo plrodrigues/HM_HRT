@@ -1,9 +1,10 @@
 import itertools
-import random
 import logging
+import random
 
 random.seed(123)
 import numpy as np
+import pandas as pd
 
 from src.data_connectors.read_input_files import Instance
 from src.genetic_algorithm.chromosome import Chromosome
@@ -97,11 +98,75 @@ def get_permutations_for_order_of_tasks(
     return order_permutations
 
 
-def get_first_population(possible_modes: list[str], number_tasks: int) -> list[Chromosome]:
+def get_min_resorce_id(instance: Instance, working_space: int = None) -> list[str]:
+    if not working_space:
+        working_space = instance.df_workingspace_id.WorkingSpace.min()
+    idx = instance.df_resource_job_time.groupby("Job")["Resource"].idxmin()
+    df_resource = instance.df_resource_job_time.loc[idx, ["Job", "Resource", "Time"]]
+    resources_list = df_resource[
+        df_resource.Job.isin(
+            instance.df_workingspace_id[
+                instance.df_workingspace_id.WorkingSpace == working_space
+            ].Id.unique()
+        )
+    ].Resource.tolist()
+    return [str(m) for m in resources_list]
+
+
+def get_max_resorce_id(instance: Instance, working_space: int = None) -> list[str]:
+    if not working_space:
+        working_space = instance.df_workingspace_id.WorkingSpace.min()
+    idx = instance.df_resource_job_time.groupby("Job")["Resource"].idxmax()
+    df_resource = instance.df_resource_job_time.loc[idx, ["Job", "Resource", "Time"]]
+    resources_list = df_resource[
+        df_resource.Job.isin(
+            instance.df_workingspace_id[
+                instance.df_workingspace_id.WorkingSpace == working_space
+            ].Id.unique()
+        )
+    ].Resource.tolist()
+    return [str(m) for m in resources_list]
+
+
+def sample_group(grp):
+    return grp.sample(1)
+
+
+def get_random_resorce_id(instance: Instance, working_space: int = None) -> list[str]:
+    if not working_space:
+        working_space = instance.df_workingspace_id.WorkingSpace.min()
+
+    df_sampled_rows = instance.df_resource_job_time.groupby("Job").apply(sample_group)
+    df_sampled_rows = df_sampled_rows.reset_index(level=1, drop=True)
+
+    resources_list = df_sampled_rows[
+        df_sampled_rows.Job.isin(
+            instance.df_workingspace_id[
+                instance.df_workingspace_id.WorkingSpace == working_space
+            ].Id.unique()
+        )
+    ].Resource.tolist()
+    return [str(m) for m in resources_list]
+
+
+def get_first_population(
+    instance: Instance, possible_modes: list[str], number_tasks: int
+) -> list[Chromosome]:
     # Chromosomes
     chromosomes = []
     # Order of tasks
     order_permutations = get_permutations_for_order_of_tasks(number_tasks)
+
+    # From available resources and times
+    base_resources = [
+        get_min_resorce_id(instance),
+        get_max_resorce_id(instance),
+        get_random_resorce_id(instance),
+    ]
+    for modes in base_resources:
+        for n_order in order_permutations:
+            chromosome_x = Chromosome(mode=modes, order=n_order)
+            chromosomes.append(chromosome_x)
 
     # First selection of chromosomes: constant modes and permutation of order of tasks
     for n_order in order_permutations:

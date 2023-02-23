@@ -1,4 +1,5 @@
 import itertools
+import logging
 
 from src.data_connectors.read_input_files import Instance
 from src.genetic_algorithm.chromosome import Chromosome
@@ -43,7 +44,7 @@ def generate_modes_of_working_space(
             elif len(resources_exclusively_in_new_ws) == 1:
                 new_ws_mode.append(str(resources_exclusively_in_new_ws[0]))
             elif len(resources_exclusively_in_new_ws) > 1:
-                print("WHAT TO DO?")
+                logging.warning("WHAT TO DO?")
         else:
             m1, m2 = split_collaboration_into_ints(m)
             if (m1 in ws_resources) and (m2 in ws_resources):
@@ -62,12 +63,18 @@ def generate_modes_of_working_space(
 def generate_new_mode_with_replication(instance: Instance, chromosome: Chromosome) -> list[str]:
     # Generate modes for remaining working spaces
     all_new_modes = []
+    logging.debug(
+        f"generate_new_mode_with_replication(): Non replicated chromosome: {len(chromosome.mode)}"
+    )
     for ws in instance.df_workingspace_resources.WorkingSpace.unique():
         if ws == 1:
             all_new_modes.append(chromosome.mode)
         else:
             mode_for_ws = generate_modes_of_working_space(instance, 1, ws, chromosome.mode)
             all_new_modes.append(mode_for_ws)
+    logging.debug(
+        f"generate_new_mode_with_replication(): Replicated crhomosome: {len(flatten(all_new_modes))}"
+    )
     return flatten(all_new_modes)
 
 
