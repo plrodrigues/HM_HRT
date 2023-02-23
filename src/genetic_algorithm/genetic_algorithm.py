@@ -151,7 +151,7 @@ def generate_next_population(
     logging.debug(f"generate_next_population() - 3 {len(new_chromosomes)}")
 
     new_chromosomes = next_population.remove_duplicated_chromosomes(copy.deepcopy(new_chromosomes))
-    logging.info(f"generate_next_population() - 4 {len(new_chromosomes)}")
+    logging.debug(f"generate_next_population() - 4 {len(new_chromosomes)}")
 
     return new_chromosomes
 
@@ -209,7 +209,7 @@ def genetic_algorithm(
         replicated_population = add_replication_of_remaining_working_spaces(
             instance, feasible_population
         )
-        logging.info(f"Population replicated: {len(replicated_population)}")
+        logging.debug(f"Population replicated: {len(replicated_population)}")
         times_of_populations = add_times_and_find_makespan(instance, replicated_population)
         (
             fittest_population,
@@ -235,7 +235,7 @@ def genetic_algorithm(
         probability = exponential_mutation_probability(iteration)
         iteration += 1
         logging.info(
-            f"==> Iteration: {iteration} Time: {iteration_time:2f} seconds. Fittest solution: {np.min(fittest_makespan)}"
+            f"==> Iteration: {iteration} Time: {iteration_time:.2f} seconds. Fittest solution: {np.min(fittest_makespan)}"
         )
-        logging.info(f"Next iteration will have: probability = {probability}")
+        logging.info(f"Next iteration will have: probability = {probability:.4f}")
     return fittest_population, fittest_makespan, np.min(fittest_makespan), better_times_seconds

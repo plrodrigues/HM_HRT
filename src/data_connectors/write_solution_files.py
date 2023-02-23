@@ -4,8 +4,9 @@ from src.data_connectors.read_input_files import Instance
 from src.genetic_algorithm import time_allocation
 
 
-def write_to_txt_file(text_to_write: list[str], intance_number: int) -> None:
-    filename = f"../data/solutions/solution_{intance_number}.txt"
+def write_to_txt_file(text_to_write: list[str], intance_number: int = None, filename: str = None) -> None:
+    if not filename:
+        filename = f"data/solutions/solution_{intance_number}.txt"
     with open(filename, "w") as f:
         for line in text_to_write:
             f.write(line)

@@ -19,6 +19,7 @@ jupyter = "*"
 ipympl = "*"
 jupyter_black = "*"
 pandas = "*"
+tqdm = "*"
 
 [tool.poetry.dev-dependencies]
 
