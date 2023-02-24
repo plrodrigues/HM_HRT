@@ -4,6 +4,7 @@ import logging
 import math
 
 import numpy as np
+from src.genetic_algorithm import constants
 
 from src.data_connectors.read_input_files import Instance
 from src.genetic_algorithm import (
@@ -30,6 +31,30 @@ def generate_first_population(instance: Instance) -> list[Chromosome]:
 
 
 def keep_feasible_chromosomes(
+    instance: Instance, all_chromosomes: list[Chromosome]
+) -> list[Chromosome]:
+    precedence_feasible_chromosomes = []
+    for i in range(len(all_chromosomes)):
+        chrom = all_chromosomes[i]
+        if feasibility.is_chromosome_precedence_feasible(instance, chrom):
+            precedence_feasible_chromosomes.append(chrom)
+
+    logging.debug(f"From {len(all_chromosomes)} to {len(precedence_feasible_chromosomes)}")
+
+    task_mode_feasible_chromosomes = []
+    for i in range(len(precedence_feasible_chromosomes)):
+        chrom = precedence_feasible_chromosomes[i]
+        if feasibility.is_chromosome_task_mode_feasible(instance, chrom):
+            task_mode_feasible_chromosomes.append(chrom)
+
+    logging.debug(
+        f"From {len(precedence_feasible_chromosomes)} to {len(task_mode_feasible_chromosomes)}"
+    )
+
+    return task_mode_feasible_chromosomes
+
+
+def keep_feasible_chromosomes_with_replication(
     instance: Instance, all_chromosomes: list[Chromosome]
 ) -> list[Chromosome]:
     precedence_feasible_chromosomes = []
@@ -157,10 +182,10 @@ def generate_next_population(
 
 
 def sigmoidal_mutation_probability(iteration):
-    initial_probability = 0.7
-    minimum_probability = 0.1
-    k = 0.01  # steepness of the sigmoid
-    x0 = 50  # midpoint of the sigmoid
+    initial_probability = constants.INITIAL_PROBABILITY
+    minimum_probability = constants.MINIMUM_PROBABILITY
+    k = constants.SIG_K
+    x0 = constants.SIG_X0
     current_probability = max(
         (initial_probability - minimum_probability) / (1 + math.exp(-k * (iteration - x0)))
         + minimum_probability,
@@ -170,9 +195,9 @@ def sigmoidal_mutation_probability(iteration):
 
 
 def exponential_mutation_probability(iteration):
-    initial_probability = 0.9
-    minimum_probability = 0.05
-    decay_factor = 0.95
+    initial_probability = constants.INITIAL_PROBABILITY
+    minimum_probability = constants.MINIMUM_PROBABILITY
+    decay_factor = constants.EXP_DECAY_FACTOR
     current_probability = max(
         initial_probability * (decay_factor**iteration), minimum_probability
     )
@@ -250,14 +275,16 @@ def genetic_algorithm_mmtsp(
     is_better_than_previous = True
     start_time = datetime.datetime.now()
     iteration_time = 0
-    probability = 0.9
     iteration = 0
+    probability = constants.INITIAL_PROBABILITY
     # for latency assessment
     min_makespan = float("inf")
     better_times_seconds = max_limit_time_sec
 
+    feasible_population = keep_feasible_chromosomes(instance, population)
+    logging.info(f"Size of feasible population: {len(feasible_population)}")
     replicated_population = add_replication_of_remaining_working_spaces(
-            instance, population
+            instance, feasible_population
         )
     logging.debug(f"Population replicated: {len(replicated_population)}")
 
@@ -287,10 +314,10 @@ def genetic_algorithm_mmtsp(
             fittest_population, previous_population
         )
         if is_better_than_previous:
-            population = generate_next_population(
+            replicated_population = generate_next_population(
                 fittest_population, fittest_makespan, probability
             )
-            logging.info(f"Size new population: {len(population)}")
+            logging.info(f"Size new replicated population: {len(replicated_population)}")
         if np.min(fittest_makespan) < min_makespan:
             min_makespan = np.min(fittest_makespan)
             better_times_seconds = (datetime.datetime.now() - start_time).total_seconds()

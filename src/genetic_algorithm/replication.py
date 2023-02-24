@@ -84,7 +84,7 @@ def generate_new_orders_with_replication(instance: Instance, chromosome: Chromos
     new_orders = []
     working_spaces = instance.df_workingspace_resources.WorkingSpace.unique()
     for i in range(len(working_spaces)):
-        ws_order = [(x * 3) + i for x in chromosome.order]
+        ws_order = [(x * len(working_spaces)) + i for x in chromosome.order]
         new_orders.append(ws_order)
     return flatten(new_orders)
 
