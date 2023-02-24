@@ -1,11 +1,15 @@
 import numpy as np
 
 from src.data_connectors.read_input_files import Instance
-from src.genetic_algorithm import time_allocation
+from src.genetic_algorithm import constants, time_allocation
 
 
-def write_to_txt_file(text_to_write: list[str], intance_number: int = None, filename: str = None) -> None:
-    if not filename:
+def write_to_txt_file(
+    text_to_write: list[str], intance_number: int = None, filename: str = None
+) -> None:
+    if not filename and constants.MMTSP_WITH_SAC:
+        filename = f"data/solutions/MMTSP-SAC/solution_{intance_number}.txt"
+    elif not filename and not constants.MMTSP_WITH_SAC:
         filename = f"data/solutions/MMTSP/solution_{intance_number}.txt"
     with open(filename, "w") as f:
         for line in text_to_write:

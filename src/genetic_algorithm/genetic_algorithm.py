@@ -4,10 +4,10 @@ import logging
 import math
 
 import numpy as np
-from src.genetic_algorithm import constants
 
 from src.data_connectors.read_input_files import Instance
 from src.genetic_algorithm import (
+    constants,
     feasibility,
     first_population,
     fitness,
@@ -284,8 +284,8 @@ def genetic_algorithm_mmtsp(
     feasible_population = keep_feasible_chromosomes(instance, population)
     logging.info(f"Size of feasible population: {len(feasible_population)}")
     replicated_population = add_replication_of_remaining_working_spaces(
-            instance, feasible_population
-        )
+        instance, feasible_population
+    )
     logging.debug(f"Population replicated: {len(replicated_population)}")
 
     while is_better_than_previous and (iteration_time < max_limit_time_sec):
@@ -300,13 +300,9 @@ def genetic_algorithm_mmtsp(
                 np.min(fittest_makespan),
                 better_times_seconds,
             )
-        
+
         times_of_populations = add_times_and_find_makespan(instance, feasible_population)
-        (
-            fittest_population,
-            fittest_makespan,
-            _,
-        ) = keep_fittest_chromosomes(
+        (fittest_population, fittest_makespan, _,) = keep_fittest_chromosomes(
             replicated_population, times_of_populations, feasible_population
         )
         logging.info(f"Fittest replicated: {len(fittest_population)}")
