@@ -69,16 +69,23 @@ def find_the_next_time_slot_of_mode(allocated_modes: dict, mode: str) -> int:
     return latest_mode
 
 
+def convert_order_of_tasks_to_tasks_ordered(order_of_tasks: list[int]) -> list[int]:
+    tasks_ordered = [1] * len(order_of_tasks)
+    for i, task_id in enumerate(order_of_tasks):
+        tasks_ordered[task_id] = i + 1
+    return tasks_ordered
+
+
 def get_all_time_allocations(instance: Instance, chromosome: Chromosome) -> dict:
-    tasks = instance.df_workingspace_id.Id.unique()
 
     all_modes = get_possible_modes(instance)
 
     times_allocated = {k: {} for k in all_modes}
 
-    for i in chromosome.order:
-        task = tasks[chromosome.order.index(i)]
-        mode_of_class = chromosome.mode[task - 1]
+    tasks = convert_order_of_tasks_to_tasks_ordered(chromosome.order)
+
+    for task in tasks:
+        mode_of_class = chromosome.mode[task-1]
         if replication.is_int(mode_of_class):
             time_of_task_in_mode = get_time_from_single_resource(instance, mode_of_class, task)
         else:
