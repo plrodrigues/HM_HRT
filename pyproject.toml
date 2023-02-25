@@ -20,6 +20,8 @@ ipympl = "*"
 jupyter_black = "*"
 pandas = "*"
 tqdm = "*"
+plotly = "*"
+pgantt = "*"
 
 [tool.poetry.dev-dependencies]
 
