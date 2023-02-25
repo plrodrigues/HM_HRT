@@ -14,4 +14,4 @@ SIG_X0 = 50  # midpoint of the sigmoid
 
 
 # Exploration is MMTSP_SAC, or not
-MMTSP_WITH_SAC = True
+MMTSP_WITH_SAC = False

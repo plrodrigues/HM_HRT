@@ -1,12 +1,12 @@
+import logging
 import os
-import pandas as pd
+from enum import Enum
 
-from src.data_connectors.read_input_files import Instance
-from src.data_connectors import read_input_files
+import pandas as pd
 from pandas.tseries.offsets import DateOffset
 
-
-from enum import Enum
+from src.data_connectors import read_input_files
+from src.data_connectors.read_input_files import Instance
 
 
 class LineInfoOfSolutions(Enum):
@@ -70,12 +70,19 @@ def convert_times_to_datetime(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def get_solution_from_instance(solutions_path: str, instances_path: str, instance_number: int) -> pd.DataFrame:
-    df = read_solutions_file(os.path.join(solutions_path, f"solution_{instance_number}.txt"))
+def get_solution_from_instance(
+    solutions_path: str, instances_path: str, instance_number: int
+) -> pd.DataFrame:
+    try:
+        df = read_solutions_file(os.path.join(solutions_path, f"solution_{instance_number}.txt"))
+    except FileNotFoundError:
+        df = read_solutions_file(os.path.join(solutions_path, f"Solution_{instance_number}.txt"))
+    except Exception as e:
+        logging.error(f"Exception on reading solutions file: {e}")
     instance = read_input_files.read_file(
         os.path.join(instances_path, f"Instance_{instance_number}.txt")
     )
-    
+
     df = add_job_id(df, instance)
     df = convert_times_to_datetime(df)
     return df

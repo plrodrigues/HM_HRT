@@ -6,6 +6,7 @@ Scheduling Human-Robot Teams in collaborative working cells
 ## Run the project
 
 ```bash
+python src/genetic_algorithm/ga_pipeline.py
 ```
 
 ## Project Tasks

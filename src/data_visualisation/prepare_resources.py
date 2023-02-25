@@ -1,4 +1,6 @@
+import numpy as np
 import pandas as pd
+
 from src.data_connectors.read_input_files import Instance
 
 
@@ -29,8 +31,17 @@ def add_resource_type(df: pd.DataFrame, instance: Instance) -> pd.DataFrame:
     )
     df["Resource"] = df["Resource"].astype(str)
     df_map_resource_ids["Resource"] = df_map_resource_ids["Resource"].astype(str)
-    df = df.merge(df_map_resource_ids[["Resource", "Resource_Category"]], how="inner", on="Resource")
+    df = df.merge(
+        df_map_resource_ids[["Resource", "Resource_Category"]], how="inner", on="Resource"
+    )
     df["Resource"] = df["Resource_Category"]
-    df.drop(['Resource_Category'], axis=1, inplace=True)
-    df = df.sort_values('Resource')
+    df.drop(["Resource_Category"], axis=1, inplace=True)
+    df = df.sort_values("Resource")
+    return df
+
+
+def add_predecessor_flag(df: pd.DataFrame, instance: Instance) -> pd.DataFrame:
+    df["has_successors"] = np.where(
+        df.Task.isin(instance.df_predecessor_sucessor.Predecessor.unique()), 1, 0
+    )
     return df

@@ -94,7 +94,14 @@ def get_permutations_for_order_of_tasks(
     permutations_of_oders = [
         list(itertools.permutations(order_section)) for order_section in orders_sections
     ]
-    order_permutations = regroup_permutations(permutations_of_oders)
+    base_len = len(permutations_of_oders[0])
+    normalised_permutations_of_oders = []
+    for permut in permutations_of_oders:
+        if len(permut) < base_len:
+            permut = list(itertools.islice(itertools.cycle(permut), base_len))
+        normalised_permutations_of_oders.append(permut)
+
+    order_permutations = regroup_permutations(normalised_permutations_of_oders)
     return order_permutations
 
 
@@ -149,6 +156,54 @@ def get_random_resorce_id(instance: Instance, working_space: int = None) -> list
     return [str(m) for m in resources_list]
 
 
+def get_permutations_for_specific_tasks(
+    tasks: list[int],
+) -> list[list[int]]:
+    n_elements_to_permute = 5
+    orders_sections = [
+        tasks[i : i + n_elements_to_permute] for i in range(0, len(tasks), n_elements_to_permute)
+    ]
+
+    permutations_of_oders = [
+        list(itertools.permutations(order_section)) for order_section in orders_sections
+    ]
+    base_len = len(permutations_of_oders[0])
+    normalised_permutations_of_oders = []
+    for permut in permutations_of_oders:
+        if len(permut) < base_len:
+            permut = list(islice(cycle(permut), base_len))
+        normalised_permutations_of_oders.append(permut)
+
+    order_permutations = regroup_permutations(normalised_permutations_of_oders)
+    return order_permutations
+
+
+def get_precedence_aware_order(instance: Instance) -> list[list[str]]:
+    first_working_space = instance.df_workingspace_id.WorkingSpace.min()
+    list_tasks_ws1 = instance.df_workingspace_id[
+        instance.df_workingspace_id.WorkingSpace == first_working_space
+    ].Id.unique()
+    list_tasks_ws1_with_successors = instance.df_predecessor_sucessor[
+        instance.df_predecessor_sucessor.Predecessor.isin(list_tasks_ws1)
+    ].Predecessor.unique()
+
+    permutations_on_predecessor_tasks = get_permutations_for_specific_tasks(
+        list_tasks_ws1_with_successors
+    )
+
+    list_tasks_ws1_without_successors = np.array(
+        [task for task in list_tasks_ws1 if task not in list_tasks_ws1_with_successors]
+    )
+    permutations_on_no_predecessor_tasks = get_permutations_for_specific_tasks(
+        list_tasks_ws1_without_successors
+    )
+    overal_permutations = []
+    for w_pred in permutations_on_predecessor_tasks:
+        for wout_pred in permutations_on_no_predecessor_tasks:
+            overal_permutations.append(w_pred + wout_pred)
+    return overal_permutations
+
+
 def get_first_population(
     instance: Instance, possible_modes: list[str], number_tasks: int
 ) -> list[Chromosome]:
@@ -157,6 +212,7 @@ def get_first_population(
     # Order of tasks
     order_permutations = get_permutations_for_order_of_tasks(number_tasks)
 
+    # First selection of chromosomes: with resources available
     # From available resources and times
     base_resources = [
         get_min_resorce_id(instance),
@@ -168,13 +224,13 @@ def get_first_population(
             chromosome_x = Chromosome(mode=modes, order=n_order)
             chromosomes.append(chromosome_x)
 
-    # First selection of chromosomes: constant modes and permutation of order of tasks
+    # Second selection of chromosomes: constant modes and permutation of order of tasks
     for n_order in order_permutations:
         for m_mode in possible_modes:
             chromosome_x = Chromosome(mode=[m_mode for _ in range(number_tasks)], order=n_order)
             chromosomes.append(chromosome_x)
 
-    # Second selection of chromosomes: generate permutations of modes and perform permutations
+    # Third selection of chromosomes: generate permutations of modes and perform permutations
     # on the order of tasks
     n_second_chromosomes = 100
     for _ in range(n_second_chromosomes):
@@ -184,6 +240,21 @@ def get_first_population(
                 order=n_order,
             )
             chromosomes.append(chromosome_x)
+
+    # Fourth selection of chromosomes: precedence aware and available resources
+    overal_permutations_precedence_aware = get_precedence_aware_order(instance)
+    for modes in base_resources:
+        for n_order in overal_permutations_precedence_aware:
+            chromosome_x = Chromosome(mode=modes, order=n_order)
+            chromosomes.append(chromosome_x)
+
+    # Fifth selection of chromosomes: precedence aware and random resources
+    for n_order in overal_permutations_precedence_aware:
+        chromosome_x = Chromosome(
+            mode=random.choices(possible_modes, k=number_tasks),
+            order=n_order,
+        )
+        chromosomes.append(chromosome_x)
 
     logging.debug(f"Total size of first population: {len(chromosomes)}")
     return chromosomes
