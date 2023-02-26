@@ -169,7 +169,7 @@ def generate_next_population(
     for chromosome in generation_to_mutate:
         mutated_chromosome = copy.deepcopy(chromosome)
         mutated_chromosome = next_population.swap_mutation_at_probability(
-            mutated_chromosome, probability, instance,
+            mutated_chromosome, instance, probability,
         )
         new_mutated_population.append(mutated_chromosome)
     new_chromosomes.extend(new_mutated_population)

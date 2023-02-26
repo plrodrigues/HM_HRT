@@ -82,14 +82,14 @@ def swap_mutation_in_order(chromosome: Chromosome) -> Chromosome:
     return chromosome
 
 
-def mutation_in_mode(chromosome: Chromosome, instance) -> Chromosome:
+def mutation_in_mode(chromosome: Chromosome, instance:Instance) -> Chromosome:
     # Choose a random indices
-    idx = random.sample(range(len(chromosome.mode)), 2)
+    idx = random.choice(range(len(chromosome.mode)))
     # Select a mode to get
-    working_space = instance.df_workingspace_id[instance.df_workingspace_id.Id == idx + 1].WorkingSpace.values[0]
+    working_space = instance.df_workingspace_id[instance.df_workingspace_id.Id == (idx + 1)].WorkingSpace.values[0]
     possible_modes = instance.df_workingspace_resources[instance.df_workingspace_resources.WorkingSpace == working_space].Resource.unique()
 
-    chromosome.mode[idx] = random.choice(possible_modes)
+    chromosome.mode[idx] = str(random.choice(possible_modes))
     return chromosome
 
 
