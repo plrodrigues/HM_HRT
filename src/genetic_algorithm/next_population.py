@@ -2,6 +2,7 @@ import copy
 import random
 
 from src.genetic_algorithm.chromosome import Chromosome
+from src.data_connectors.read_input_files import Instance
 
 
 def one_point_crossover(
@@ -81,22 +82,25 @@ def swap_mutation_in_order(chromosome: Chromosome) -> Chromosome:
     return chromosome
 
 
-def swap_mutation_in_mode(chromosome: Chromosome) -> Chromosome:
-    # Choose two random indices to swap
-    idx1, idx2 = random.sample(range(len(chromosome.mode)), 2)
-    # Swap the values at the chosen indices
-    chromosome.mode[idx1], chromosome.mode[idx2] = chromosome.mode[idx2], chromosome.mode[idx1]
+def mutation_in_mode(chromosome: Chromosome, instance) -> Chromosome:
+    # Choose a random indices
+    idx = random.sample(range(len(chromosome.mode)), 2)
+    # Select a mode to get
+    working_space = instance.df_workingspace_id[instance.df_workingspace_id.Id == idx + 1].WorkingSpace.values[0]
+    possible_modes = instance.df_workingspace_resources[instance.df_workingspace_resources.WorkingSpace == working_space].Resource.unique()
+
+    chromosome.mode[idx] = random.choice(possible_modes)
     return chromosome
 
 
-def swap_mutation_at_probability(chromosome: Chromosome, probability: float = 0.5) -> Chromosome:
+def swap_mutation_at_probability(chromosome: Chromosome, instance: Instance, probability: float = 0.5) -> Chromosome:
     variable_probability = random.uniform(0, probability)
     n_times = int(round(len(chromosome.order) * variable_probability, 0))
     it = 0
     # print(f"Mutating {n_times} times.")
     while it < n_times:
         chromosome = swap_mutation_in_order(chromosome)
-        chromosome = swap_mutation_in_mode(chromosome)
+        chromosome = mutation_in_mode(chromosome, instance)
         it += 1
     return chromosome
 

@@ -151,7 +151,7 @@ def is_new_population_better_than_previous(
 
 
 def generate_next_population(
-    fittest_chromosomes: list[Chromosome], fittest_makespan: list[int], probability: float = 0.4
+    fittest_chromosomes: list[Chromosome], fittest_makespan: list[int], instance: Instance, probability: float = 0.4,
 ) -> list[Chromosome]:
     logging.debug(f"generate_next_population() - 0 {len(fittest_chromosomes)}")
     new_chromosomes = copy.deepcopy(fittest_chromosomes)
@@ -169,7 +169,7 @@ def generate_next_population(
     for chromosome in generation_to_mutate:
         mutated_chromosome = copy.deepcopy(chromosome)
         mutated_chromosome = next_population.swap_mutation_at_probability(
-            mutated_chromosome, probability
+            mutated_chromosome, probability, instance,
         )
         new_mutated_population.append(mutated_chromosome)
     new_chromosomes.extend(new_mutated_population)
@@ -249,7 +249,7 @@ def genetic_algorithm_mmtsp_sac(
         )
         if is_better_than_previous:
             population = generate_next_population(
-                fittest_chromosomes_without_replication, fittest_makespan, probability
+                fittest_chromosomes_without_replication, fittest_makespan, instance, probability, 
             )
             logging.info(f"Size new population: {len(population)}")
         if np.min(fittest_makespan) < min_makespan:
@@ -311,7 +311,7 @@ def genetic_algorithm_mmtsp(
         )
         if is_better_than_previous:
             replicated_population = generate_next_population(
-                fittest_population, fittest_makespan, probability
+                fittest_population, fittest_makespan, instance, probability, 
             )
             logging.info(f"Size new replicated population: {len(replicated_population)}")
         if np.min(fittest_makespan) < min_makespan:

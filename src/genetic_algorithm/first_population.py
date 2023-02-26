@@ -242,7 +242,7 @@ def get_first_population(
 
     # Third selection of chromosomes: generate permutations of modes and perform permutations
     # on the order of tasks
-    n_second_chromosomes = 20 # 100
+    n_second_chromosomes = 100
     for _ in range(n_second_chromosomes):
         for n_order in order_permutations:
             chromosome_x = Chromosome(
