@@ -74,6 +74,26 @@ def generate_next_population_with_crossover(
     return new_generation
 
 
+def generate_next_population_with_crossover_with_random_survival_parents(
+    all_survival_chromosomes: list[Chromosome]
+) -> list[Chromosome]:
+    new_generation = []
+    all_survival_chromosomes_to_generation = all_survival_chromosomes.copy()
+    shuffle_chromosomes = random.sample(all_survival_chromosomes_to_generation, len(all_survival_chromosomes_to_generation))
+    pairs_shuffle_chromosomes = [(shuffle_chromosomes[i], shuffle_chromosomes[i + 1]) for i in range(0, len(shuffle_chromosomes), 2)]
+
+    for parent_1, parent_2 in pairs_shuffle_chromosomes:
+        offspring_1, offspring_2 = one_point_crossover(parent_1, parent_2)
+        offspring_3, offspring_4 = uniform_crossover(parent_1, parent_2)
+
+        new_generation.append(offspring_1)
+        new_generation.append(offspring_2)
+        new_generation.append(offspring_3)
+        new_generation.append(offspring_4)
+
+    return new_generation
+
+
 def swap_mutation_in_order(chromosome: Chromosome) -> Chromosome:
     # Choose two random indices to swap
     idx1, idx2 = random.sample(range(len(chromosome.order)), 2)

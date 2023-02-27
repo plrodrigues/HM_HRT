@@ -151,15 +151,20 @@ def is_new_population_better_than_previous(
 
 
 def generate_next_population(
-    fittest_chromosomes: list[Chromosome], fittest_makespan: list[int], instance: Instance, probability: float = 0.4,
+    fittest_chromosomes: list[Chromosome], fittest_makespan: list[int], instance: Instance, probability: float = 0.4, ordered_parents: bool = True
 ) -> list[Chromosome]:
     logging.debug(f"generate_next_population() - 0 {len(fittest_chromosomes)}")
     new_chromosomes = copy.deepcopy(fittest_chromosomes)
     logging.debug(f"generate_next_population() - 1 {len(new_chromosomes)}")
     original_fittest_chromosomes = copy.deepcopy(fittest_chromosomes)
-    new_generation = next_population.generate_next_population_with_crossover(
-        original_fittest_chromosomes, fittest_makespan
-    )
+    if ordered_parents:
+        new_generation = next_population.generate_next_population_with_crossover(
+            original_fittest_chromosomes, fittest_makespan
+        )
+    else: 
+        new_generation = next_population.generate_next_population_with_crossover_with_random_survival_parents(
+            original_fittest_chromosomes
+        )
     generation_to_mutate = copy.deepcopy(new_generation)
 
     new_chromosomes.extend(new_generation)
@@ -249,7 +254,7 @@ def genetic_algorithm_mmtsp_sac(
         )
         if is_better_than_previous:
             population = generate_next_population(
-                fittest_chromosomes_without_replication, fittest_makespan, instance, probability, 
+                fittest_chromosomes_without_replication, fittest_makespan, instance, probability, constants.CROSSOVER_WITH_SORTED_PARENTS,
             )
             logging.info(f"Size new population: {len(population)}")
         if np.min(fittest_makespan) < min_makespan:
@@ -311,7 +316,7 @@ def genetic_algorithm_mmtsp(
         )
         if is_better_than_previous:
             replicated_population = generate_next_population(
-                fittest_population, fittest_makespan, instance, probability, 
+                fittest_population, fittest_makespan, instance, probability, constants.CROSSOVER_WITH_SORTED_PARENTS, 
             )
             logging.info(f"Size new replicated population: {len(replicated_population)}")
         if np.min(fittest_makespan) < min_makespan:
