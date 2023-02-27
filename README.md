@@ -5,6 +5,8 @@ Scheduling Human-Robot Teams in collaborative working cells
 
 ## Run the project
 
+Se poetry Python environment, following the instructions in [README_python.md](/README_python.md)
+
 ```bash
 python src/genetic_algorithm/ga_pipeline.py
 ```

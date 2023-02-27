@@ -121,15 +121,14 @@ def keep_fittest_chromosomes(
     makespan_all_chromosomes: list[int],
     chromosomes_without_replication: list[int],
 ) -> tuple[list[Chromosome], list[int]]:
-    keep_fittest_n = 100
     fittest_chromosomes, fittest_makespan = fitness.keep_fittest_n_chromosomes(
-        task_mode_feasible_chromosomes, makespan_all_chromosomes, keep_fittest_n
+        task_mode_feasible_chromosomes, makespan_all_chromosomes, constants.KEEP_UP_TO_CRHOMOSOMES
     )
     logging.debug(
         f"keep_fittest_chromosomes(): How many fittest chromosomes: {len(fittest_chromosomes)}"
     )
     fittest_without_replication_chromosomes, _ = fitness.keep_fittest_n_chromosomes(
-        chromosomes_without_replication, makespan_all_chromosomes, keep_fittest_n
+        chromosomes_without_replication, makespan_all_chromosomes, constants.KEEP_UP_TO_CRHOMOSOMES
     )
     logging.debug(
         f"keep_fittest_chromosomes(): How many fittest chromosomes without replication are selected: {len(fittest_without_replication_chromosomes)}"

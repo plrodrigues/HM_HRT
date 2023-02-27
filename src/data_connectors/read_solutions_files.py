@@ -25,7 +25,6 @@ def read_latency_from_solutions_header(filename: str) -> float:
     return float(header_information[13])
 
 
-
 def read_solutions_file(filename: str) -> pd.DataFrame:
     with open(filename) as f:
         lines = f.readlines()

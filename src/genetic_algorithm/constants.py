@@ -1,9 +1,41 @@
 # Instances path
 INSTANCES_PATH = "data/input/HRTInstances/"
-INSTANCES_LIST = [x for x in range(217, 337)]
+INSTANCES_LIST = [
+    217,
+    220,
+    218,
+    221,
+    230,
+    233,
+    242,
+    245,
+    266,
+    231,
+    267,
+    223,
+    226,
+    235,
+    238,
+    250,
+    262,
+    271,
+    274,
+    224,
+    227,
+    236,
+    275,
+    277,
+    313,
+    278,
+    283,
+]
+# [x for x in range(217, 337)]
 
 # Max limit of time for exploration per instance
 MAX_TIME_LIMIT_SEC = 240
+
+# Fitness
+KEEP_UP_TO_CRHOMOSOMES = 1000
 
 # GA learning evolution
 INITIAL_PROBABILITY = 0.9

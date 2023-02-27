@@ -6,7 +6,7 @@ from src.genetic_algorithm.chromosome import Chromosome
 def keep_fittest_n_chromosomes(
     all_chromosomes: list[Chromosome], makespan_all_chromosomes: list[int], number_survivers: int
 ) -> tuple[list[int], list[Chromosome]]:
-    # THIS IS INCORRECT
+
     better_makespans = sorted(makespan_all_chromosomes)[: number_survivers + 1]
     max_makespan_limit = np.max(better_makespans)
     fittest_chromosomes = [
