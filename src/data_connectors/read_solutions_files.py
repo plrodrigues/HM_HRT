@@ -15,6 +15,17 @@ class LineInfoOfSolutions(Enum):
     READ_JOB_AND_TIMES = 2
 
 
+def read_latency_from_solutions_header(filename: str) -> float:
+    with open(filename) as f:
+        lines = f.readlines()
+
+    header = lines[0]
+    stripped_header = header.strip()
+    header_information = stripped_header.split(" ")
+    return float(header_information[13])
+
+
+
 def read_solutions_file(filename: str) -> pd.DataFrame:
     with open(filename) as f:
         lines = f.readlines()
