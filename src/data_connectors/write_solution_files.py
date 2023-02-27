@@ -38,7 +38,9 @@ def find_times_of_best_solution(instance: Instance, result: tuple) -> dict:
     return time_allocation.get_all_time_allocations(instance, better_solution)
 
 
-def write_solution_to_file(instance: Instance, intance_number: int, result: tuple, filename: str = None) -> None:
+def write_solution_to_file(
+    instance: Instance, intance_number: int, result: tuple, filename: str = None
+) -> None:
     times_of_better_solution = find_times_of_best_solution(instance, result)
     text_to_write = generate_text_to_write(intance_number, result, times_of_better_solution)
     write_to_txt_file(text_to_write, intance_number, filename)

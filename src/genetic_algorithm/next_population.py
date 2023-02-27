@@ -1,8 +1,8 @@
 import copy
 import random
 
-from src.genetic_algorithm.chromosome import Chromosome
 from src.data_connectors.read_input_files import Instance
+from src.genetic_algorithm.chromosome import Chromosome
 
 
 def one_point_crossover(
@@ -75,12 +75,19 @@ def generate_next_population_with_crossover(
 
 
 def generate_next_population_with_crossover_with_random_survival_parents(
-    all_survival_chromosomes: list[Chromosome]
+    all_survival_chromosomes: list[Chromosome],
 ) -> list[Chromosome]:
     new_generation = []
     all_survival_chromosomes_to_generation = all_survival_chromosomes.copy()
-    shuffle_chromosomes = random.sample(all_survival_chromosomes_to_generation, len(all_survival_chromosomes_to_generation))
-    pairs_shuffle_chromosomes = [(shuffle_chromosomes[i], shuffle_chromosomes[i + 1]) for i in range(0, len(shuffle_chromosomes), 2)]
+    shuffle_chromosomes = random.sample(
+        all_survival_chromosomes_to_generation, len(all_survival_chromosomes_to_generation)
+    )
+    if len(shuffle_chromosomes) % 2 != 0:
+        shuffle_chromosomes.append(shuffle_chromosomes[0])
+    pairs_shuffle_chromosomes = [
+        (shuffle_chromosomes[i], shuffle_chromosomes[i + 1])
+        for i in range(0, len(shuffle_chromosomes), 2)
+    ]
 
     for parent_1, parent_2 in pairs_shuffle_chromosomes:
         offspring_1, offspring_2 = one_point_crossover(parent_1, parent_2)
@@ -102,18 +109,24 @@ def swap_mutation_in_order(chromosome: Chromosome) -> Chromosome:
     return chromosome
 
 
-def mutation_in_mode(chromosome: Chromosome, instance:Instance) -> Chromosome:
+def mutation_in_mode(chromosome: Chromosome, instance: Instance) -> Chromosome:
     # Choose a random indices
     idx = random.choice(range(len(chromosome.mode)))
     # Select a mode to get
-    working_space = instance.df_workingspace_id[instance.df_workingspace_id.Id == (idx + 1)].WorkingSpace.values[0]
-    possible_modes = instance.df_workingspace_resources[instance.df_workingspace_resources.WorkingSpace == working_space].Resource.unique()
+    working_space = instance.df_workingspace_id[
+        instance.df_workingspace_id.Id == (idx + 1)
+    ].WorkingSpace.values[0]
+    possible_modes = instance.df_workingspace_resources[
+        instance.df_workingspace_resources.WorkingSpace == working_space
+    ].Resource.unique()
 
     chromosome.mode[idx] = str(random.choice(possible_modes))
     return chromosome
 
 
-def swap_mutation_at_probability(chromosome: Chromosome, instance: Instance, probability: float = 0.5) -> Chromosome:
+def swap_mutation_at_probability(
+    chromosome: Chromosome, instance: Instance, probability: float = 0.5
+) -> Chromosome:
     variable_probability = random.uniform(0, probability)
     n_times = int(round(len(chromosome.order) * variable_probability, 0))
     it = 0

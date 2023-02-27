@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+
 from src.genetic_algorithm import constants
 
 

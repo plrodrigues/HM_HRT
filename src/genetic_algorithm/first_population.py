@@ -1,5 +1,4 @@
 import itertools
-
 import logging
 import random
 
@@ -221,12 +220,12 @@ def get_first_population(
     chromosomes = []
     # Order of tasks
     order_permutations = get_permutations_for_order_of_tasks(number_tasks)
-    
+
     # First selection of chromosomes: with resources available
     # From available resources and times
     base_resources = [
-        get_min_resorce_id(instance), # preference to humans
-        get_max_resorce_id(instance), # preference to robots
+        get_min_resorce_id(instance),  # preference to humans
+        get_max_resorce_id(instance),  # preference to robots
         get_random_resorce_id(instance),
     ]
     for modes in base_resources:
@@ -250,14 +249,16 @@ def get_first_population(
                 order=n_order,
             )
             chromosomes.append(chromosome_x)
-    
+
     # Fourth selection of chromosomes: precedence aware and available resources
     overal_permutations_precedence_aware = get_precedence_aware_order(instance)
     for modes in base_resources:
         for n_order in overal_permutations_precedence_aware:
-            chromosome_x = Chromosome(mode=modes, order=convert_tasks_ordered_to_order_of_tasks(n_order))
+            chromosome_x = Chromosome(
+                mode=modes, order=convert_tasks_ordered_to_order_of_tasks(n_order)
+            )
             chromosomes.append(chromosome_x)
-    
+
     # Fifth selection of chromosomes: precedence aware and random resources
     for n_order in overal_permutations_precedence_aware:
         chromosome_x = Chromosome(

@@ -85,7 +85,7 @@ def get_all_time_allocations(instance: Instance, chromosome: Chromosome) -> dict
     tasks = convert_order_of_tasks_to_tasks_ordered(chromosome.order)
 
     for task in tasks:
-        mode_of_class = chromosome.mode[task-1]
+        mode_of_class = chromosome.mode[task - 1]
         if replication.is_int(mode_of_class):
             time_of_task_in_mode = get_time_from_single_resource(instance, mode_of_class, task)
         else:
